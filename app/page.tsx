@@ -51,7 +51,7 @@ export default function WelcomePage() {
       </section>
 
       <footer className="footer">
-        Private and run by neighbors. Verified residents only. No ads, and nothing is sold or shared.
+        Private and run by neighbors. Verified residents only and nothing is sold or shared.
       </footer>
     </main>
   );
