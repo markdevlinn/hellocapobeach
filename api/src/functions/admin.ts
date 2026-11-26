@@ -2,12 +2,12 @@ import { app } from "@azure/functions";
 import { endpoint, fail, json } from "../lib/http";
 import { sql } from "../lib/db";
 
-// GET /api/admin/pending
+// GET /api/manage/pending  (Azure Functions reserves the "admin" route prefix)
 // Neighbors waiting in the holding area. Admins only.
 app.http("adminPending", {
   methods: ["GET"],
   authLevel: "anonymous",
-  route: "admin/pending",
+  route: "manage/pending",
   handler: endpoint("admin", async ({ pool }) => {
     const r = await pool.request().query(
       `select m.id, m.full_name as name, m.email, m.phone, m.house_number as houseNumber,
@@ -21,11 +21,11 @@ app.http("adminPending", {
   }),
 });
 
-// POST /api/admin/members/{id}/approve  or  /decline
+// POST /api/manage/members/{id}/approve  or  /decline
 app.http("adminDecide", {
   methods: ["POST"],
   authLevel: "anonymous",
-  route: "admin/members/{id}/{decision}",
+  route: "manage/members/{id}/{decision}",
   handler: endpoint("admin", async ({ req, member, pool }) => {
     const id = req.params.id ?? "";
     const decision = req.params.decision;

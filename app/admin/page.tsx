@@ -22,7 +22,7 @@ export default function Admin() {
 
   const load = useCallback(async () => {
     try {
-      const d = await api<{ pending: Pending[] }>("/api/admin/pending");
+      const d = await api<{ pending: Pending[] }>("/api/manage/pending");
       setPending(d.pending);
     } catch (err) {
       setMessage(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
@@ -37,7 +37,7 @@ export default function Admin() {
     setBusyId(id);
     setMessage(null);
     try {
-      await api(`/api/admin/members/${id}/${decision}`, { method: "POST" });
+      await api(`/api/manage/members/${id}/${decision}`, { method: "POST" });
       await load();
     } catch (err) {
       setMessage(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
