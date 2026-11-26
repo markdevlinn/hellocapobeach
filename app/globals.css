@@ -1,0 +1,197 @@
+/* Hello Capo Beach design tokens.
+   Shape rule: buttons are full pills, cards are 16px, inputs are 12px.
+   One accent (deep teal). Sun yellow is for small highlights only. */
+:root {
+  --bg: #f2f7f6;
+  --surface: #ffffff;
+  --ink: #0f2f38;
+  --muted: #4a656c;
+  --primary: #0b6670;
+  --primary-ink: #ffffff;
+  --tint: #dceeec;
+  --sun: #ffd27a;
+  --sun-ink: #0f2f38;
+  --line: #c9dad8;
+  --field-line: #6f8f8e;
+
+  --font-body: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Bricolage Grotesque Variable", var(--font-body);
+
+  --radius-card: 16px;
+  --radius-field: 12px;
+  --tap: 48px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c1f25;
+    --surface: #132c33;
+    --ink: #e9f3f2;
+    --muted: #a9c3c4;
+    --primary: #6fd0d6;
+    --primary-ink: #06262b;
+    --tint: #1b3d44;
+    --sun: #ffd27a;
+    --sun-ink: #0f2f38;
+    --line: #26474e;
+    --field-line: #7fa3a4;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--primary);
+}
+
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Page frame: phone-width column, centered on larger screens. */
+.page {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 28px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brand h1 {
+  font-size: 36px;
+}
+
+.lede {
+  color: var(--muted);
+  font-size: 18px;
+}
+
+.notice {
+  background: var(--sun);
+  color: var(--sun-ink);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notice strong {
+  font-size: 18px;
+}
+
+.points {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-radius: var(--radius-card);
+}
+
+.points li {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.points li + li {
+  border-top: 1px solid var(--line);
+}
+
+.points .label {
+  font-weight: 700;
+}
+
+.points .detail {
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.install {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.install h2 {
+  font-size: 20px;
+}
+
+.install ol {
+  margin: 0;
+  padding-left: 22px;
+  color: var(--muted);
+  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer {
+  margin-top: auto;
+  padding-top: 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0 24px;
+  border-radius: 28px;
+  border: 0;
+  background: var(--primary);
+  color: var(--primary-ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button:active {
+  transform: scale(0.98);
+}

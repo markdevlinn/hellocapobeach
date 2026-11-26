@@ -1,0 +1,13 @@
+{
+  "platform": { "apiRuntime": "node:20" },
+  "globalHeaders": {
+    "X-Robots-Tag": "noindex, nofollow",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()"
+  },
+  "responseOverrides": {
+    "404": { "rewrite": "/404.html" }
+  }
+}
