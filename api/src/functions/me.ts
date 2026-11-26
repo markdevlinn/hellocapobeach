@@ -26,6 +26,7 @@ app.http("me", {
       email: member.email,
       isAdmin: member.status === "approved" && member.role === "admin",
       invitesLeft: invites,
+      inDirectory: member.in_directory === true,
     });
   }),
 });

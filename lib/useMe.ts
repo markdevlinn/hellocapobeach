@@ -11,6 +11,7 @@ export interface Me {
   email?: string | null;
   isAdmin?: boolean;
   invitesLeft?: number | "unlimited";
+  inDirectory?: boolean;
 }
 
 const HOME: Record<Me["state"], string> = {

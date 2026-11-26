@@ -87,14 +87,21 @@ export function AppShell({
           <div className="app-title">
             <h1>{title}</h1>
             {!back && (
-              <a className="me-link" href="/profile/" aria-label="My profile">
-                {(me.name ?? "?")
-                  .split(" ")
-                  .map((p) => p[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase()}
-              </a>
+              <div className="head-links">
+                {me.isAdmin && (
+                  <a className="admin-link" href="/admin/">
+                    Admin
+                  </a>
+                )}
+                <a className="me-link" href="/profile/" aria-label="My profile">
+                  {(me.name ?? "?")
+                    .split(" ")
+                    .map((p) => p[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()}
+                </a>
+              </div>
             )}
           </div>
           {subtitle && <p className="hint">{subtitle}</p>}

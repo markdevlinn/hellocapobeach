@@ -175,3 +175,35 @@ test("removing: your own things, or anything if you are an admin", () => {
   assert.equal(canRemove({ id: A, status: "approved", role: "admin" }, B), true);
   assert.equal(canRemove({ id: A, status: "removed", role: "admin" }, B), false);
 });
+
+// ---------------------------------------------------------------
+// Admin area
+// ---------------------------------------------------------------
+import { adminMayChange, memberTransition, parseMemberEdit } from "../src/lib/rules";
+
+test("member status only moves in the allowed directions", () => {
+  assert.equal(memberTransition("pending", "approve"), "approved");
+  assert.equal(memberTransition("pending", "decline"), "declined");
+  assert.equal(memberTransition("approved", "remove"), "removed");
+  assert.equal(memberTransition("removed", "restore"), "approved");
+  assert.equal(memberTransition("declined", "restore"), "approved");
+  assert.equal(memberTransition("approved", "approve"), null);
+  assert.equal(memberTransition("pending", "remove"), null);
+  assert.equal(memberTransition("approved", "restore"), null);
+  assert.equal(memberTransition("removed", "decline"), null);
+});
+
+test("an admin cannot remove themselves, but can remove others", () => {
+  assert.equal(adminMayChange(A, A, "remove"), false);
+  assert.equal(adminMayChange(A, A.toUpperCase(), "decline"), false);
+  assert.equal(adminMayChange(A, B, "remove"), true);
+  assert.equal(adminMayChange(A, A, "restore"), true);
+});
+
+test("admin edit of a member: name, street and house number only", () => {
+  const r = parseMemberEdit({ fullName: " Will  Wright ", streetId: 6, houseNumber: "4020", role: "admin", status: "approved", email: "x@y.z" });
+  assert.equal(r.ok, true);
+  if (r.ok) assert.deepEqual(r.value, { fullName: "Will Wright", streetId: 6, houseNumber: "4020" });
+  assert.equal(parseMemberEdit({ fullName: "W", streetId: 6, houseNumber: "1" }).ok, false);
+  assert.equal(parseMemberEdit({ fullName: "Will Wright", streetId: "x", houseNumber: "1" }).ok, false);
+});

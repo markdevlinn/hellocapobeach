@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { api } from "@/lib/api";
 import { CATEGORY_LABEL, timeAgo } from "@/lib/format";
 import { message, useLoad } from "@/lib/useLoad";
+import { Me } from "@/lib/useMe";
 import { AppShell } from "@/components/AppShell";
 
 interface Post {
@@ -26,7 +27,83 @@ const FILTERS = [
   { id: "general", label: "General" },
 ];
 
-function Feed() {
+const NUDGE_KEY = "hcb.directoryNudgeDismissed";
+
+/** Shown once to members who are not in the directory. It stays their choice. */
+function DirectoryNudge({ me }: { me: Me }) {
+  const [show, setShow] = useState(() => {
+    if (me.inDirectory !== false) return false;
+    try {
+      return window.localStorage.getItem(NUDGE_KEY) !== "1";
+    } catch {
+      return true;
+    }
+  });
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function dismiss() {
+    try {
+      window.localStorage.setItem(NUDGE_KEY, "1");
+    } catch {
+      // fine: it will simply ask again next time
+    }
+    setShow(false);
+  }
+
+  async function listMe() {
+    setBusy(true);
+    setError(null);
+    try {
+      const current = await api<{ profile: { phone: string | null; showPhone: boolean; showEmail: boolean; showHouseNumber: boolean } }>("/api/profile");
+      await api("/api/profile", {
+        method: "POST",
+        body: { phone: current.profile.phone ?? "", showPhone: current.profile.showPhone, showEmail: current.profile.showEmail, showHouseNumber: current.profile.showHouseNumber, inDirectory: true },
+      });
+      setDone(true);
+      try {
+        window.localStorage.setItem(NUDGE_KEY, "1");
+      } catch {
+        // ignore
+      }
+    } catch (err) {
+      setError(message(err));
+    }
+    setBusy(false);
+  }
+
+  if (!show) return null;
+  if (done) {
+    return (
+      <div className="card">
+        <strong>You are listed.</strong>
+        <p className="hint">Neighbors can now find your name and street. You can change this any time in your profile.</p>
+      </div>
+    );
+  }
+  return (
+    <div className="card">
+      <h2>Want neighbors to be able to find you?</h2>
+      <p className="hint">The Neighbors list only shows people who choose to be on it. It shows your name and street. Your phone, email and house number stay hidden unless you turn them on.</p>
+      {error && (
+        <p className="error" role="alert">
+          {error}
+        </p>
+      )}
+      <div className="row">
+        <button type="button" className="button grow" disabled={busy} onClick={() => void listMe()}>
+          {busy ? "Saving..." : "List me"}
+        </button>
+        <button type="button" className="button secondary grow" onClick={dismiss}>
+          Not now
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Feed({ me }: { me: Me }) {
   const [filter, setFilter] = useState("");
   const { data, error, reload } = useLoad<{ posts: Post[] }>(`/api/posts${filter ? `?category=${filter}` : ""}`, true);
   const [writing, setWriting] = useState(false);
@@ -52,6 +129,7 @@ function Feed() {
 
   return (
     <>
+      <DirectoryNudge me={me} />
       <div className="chips" role="group" aria-label="Show">
         {FILTERS.map((f) => (
           <button key={f.id} type="button" className={filter === f.id ? "chip on" : "chip"} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
@@ -129,7 +207,7 @@ function Feed() {
 export default function Home() {
   return (
     <AppShell tab="home" title="Hello Capo Beach">
-      {() => <Feed />}
+      {(me) => <Feed me={me} />}
     </AppShell>
   );
 }

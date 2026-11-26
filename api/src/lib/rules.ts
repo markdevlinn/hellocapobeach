@@ -218,3 +218,38 @@ export function parseProfile(body: unknown): Parsed<{
 export function canRemove(member: MemberLike & { id: string }, ownerId: string): boolean {
   return member.status === "approved" && (member.role === "admin" || member.id.toLowerCase() === ownerId.toLowerCase());
 }
+
+// ---------------------------------------------------------------
+// Admin area
+// ---------------------------------------------------------------
+
+export type MemberDecision = "approve" | "decline" | "remove" | "restore";
+
+export function isMemberDecision(v: unknown): v is MemberDecision {
+  return v === "approve" || v === "decline" || v === "remove" || v === "restore";
+}
+
+/** The status a member moves to, or null when that step is not allowed from where they are. */
+export function memberTransition(current: MemberStatus, decision: MemberDecision): MemberStatus | null {
+  if (decision === "approve") return current === "pending" ? "approved" : null;
+  if (decision === "decline") return current === "pending" ? "declined" : null;
+  if (decision === "remove") return current === "approved" ? "removed" : null;
+  return current === "removed" || current === "declined" ? "approved" : null;
+}
+
+/** An admin cannot remove or decline themselves. It would lock the app with no admin. */
+export function adminMayChange(selfId: string, targetId: string, decision: MemberDecision): boolean {
+  const same = selfId.toLowerCase() === targetId.toLowerCase();
+  return !(same && (decision === "remove" || decision === "decline"));
+}
+
+export function parseMemberEdit(body: unknown): Parsed<{ fullName: string; streetId: number; houseNumber: string }> {
+  const b = (body ?? {}) as Record<string, unknown>;
+  const fullName = text(b.fullName).replace(/\s+/g, " ");
+  if (fullName.length < 2 || fullName.length > 80) return { ok: false, message: "Please enter the full name." };
+  const streetId = Number(b.streetId);
+  if (!Number.isInteger(streetId) || streetId <= 0) return { ok: false, message: "Please choose a street." };
+  const houseNumber = text(b.houseNumber);
+  if (!/^[0-9]{1,6}[A-Za-z]?$/.test(houseNumber)) return { ok: false, message: "Please enter the house number." };
+  return { ok: true, value: { fullName, streetId, houseNumber } };
+}

@@ -75,7 +75,7 @@ function ProfileForm({ me }: { me: Me }) {
     <>
       {me.isAdmin && (
         <a className="button" href="/admin/">
-          Review requests to join
+          Open the admin area
         </a>
       )}
 

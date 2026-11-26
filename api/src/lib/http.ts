@@ -9,6 +9,7 @@ export interface Member {
   full_name: string;
   status: MemberStatus;
   role: MemberRole;
+  in_directory: boolean;
 }
 
 export interface Ctx {
@@ -31,7 +32,7 @@ export async function findMember(pool: sql.ConnectionPool, subject: string): Pro
   const r = await pool
     .request()
     .input("subject", sql.NVarChar(128), subject)
-    .query<Member>("select id, email, full_name, status, role from dbo.members where auth_subject = @subject");
+    .query<Member>("select id, email, full_name, status, role, in_directory from dbo.members where auth_subject = @subject");
   return r.recordset[0] ?? null;
 }
 
