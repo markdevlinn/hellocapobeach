@@ -2,7 +2,8 @@
 
 import { ReactNode } from "react";
 import { Me, useMe } from "@/lib/useMe";
-import { Loading } from "./Brand";
+import { Loading, Mark } from "./Brand";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Tab = "home" | "events" | "market" | "neighbors";
 
@@ -86,13 +87,14 @@ export function AppShell({
           )}
           <div className="app-title">
             <h1>{title}</h1>
-            {!back && (
-              <div className="head-links">
-                {me.isAdmin && (
+            <div className="head-links">
+              <ThemeToggle />
+              {!back && me.isAdmin && (
                   <a className="admin-link" href="/admin/">
                     Admin
                   </a>
-                )}
+              )}
+              {!back && (
                 <a className="me-link" href="/profile/" aria-label="My profile">
                   {(me.name ?? "?")
                     .split(" ")
@@ -101,14 +103,18 @@ export function AppShell({
                     .join("")
                     .toUpperCase()}
                 </a>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           {subtitle && <p className="hint">{subtitle}</p>}
         </header>
         {children(me)}
       </main>
       <nav className="tabs" aria-label="Main">
+        <a className="side-brand" href="/home/">
+          <Mark size={36} />
+          Hello Capo Beach
+        </a>
         {TABS.map((t) => (
           <a key={t.id} href={t.href} className={t.id === tab ? "tab on" : "tab"} aria-current={t.id === tab ? "page" : undefined}>
             <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={t.id === tab ? 2.4 : 2} strokeLinecap="round" strokeLinejoin="round">

@@ -4,7 +4,7 @@ import { StartButton } from "@/components/StartButton";
 // Public welcome page. Anyone can see this, so it holds no neighbor data.
 export default function WelcomePage() {
   return (
-    <main className="page">
+    <main className="page welcome">
       <header className="brand">
         <Mark />
         <h1>Hello Capo Beach</h1>

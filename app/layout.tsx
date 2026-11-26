@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/figtree";
 import "@fontsource-variable/bricolage-grotesque";
 import "./globals.css";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { THEME_BOOT } from "@/lib/theme";
 
 export const metadata: Metadata = {
   title: "Hello Capo Beach",
@@ -27,8 +29,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
+      <body>
+        <ThemeToggle className="theme-global" />
+        {children}
+      </body>
     </html>
   );
 }

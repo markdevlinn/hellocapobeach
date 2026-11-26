@@ -13,6 +13,10 @@
   --sun-ink: #0f2f38;
   --line: #c9dad8;
   --field-line: #6f8f8e;
+  --danger: #9b2c1f;
+  --error-ink: #9b2c1f;
+  --error-bg: #fde8e4;
+  color-scheme: light;
 
   --font-body: "Figtree Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Bricolage Grotesque Variable", var(--font-body);
@@ -22,8 +26,28 @@
   --tap: 48px;
 }
 
+/* Dark colors. Used when the neighbor picks dark, or when they have not picked
+   and their device is set to dark. The choice is saved on the device. */
+:root[data-theme="dark"] {
+  --bg: #0c1f25;
+  --surface: #132c33;
+  --ink: #e9f3f2;
+  --muted: #a9c3c4;
+  --primary: #6fd0d6;
+  --primary-ink: #06262b;
+  --tint: #1b3d44;
+  --sun: #ffd27a;
+  --sun-ink: #0f2f38;
+  --line: #26474e;
+  --field-line: #7fa3a4;
+  --danger: #ffb4a8;
+  --error-ink: #ffd9d2;
+  --error-bg: #5a1f17;
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0c1f25;
     --surface: #132c33;
     --ink: #e9f3f2;
@@ -35,6 +59,10 @@
     --sun-ink: #0f2f38;
     --line: #26474e;
     --field-line: #7fa3a4;
+    --danger: #ffb4a8;
+    --error-ink: #ffd9d2;
+    --error-bg: #5a1f17;
+    color-scheme: dark;
   }
 }
 
@@ -209,8 +237,8 @@ a {
 }
 
 .error {
-  color: #9b2c1f;
-  background: #fde8e4;
+  color: var(--error-ink);
+  background: var(--error-bg);
   border-radius: var(--radius-field);
   padding: 12px 14px;
   font-weight: 600;
@@ -353,13 +381,6 @@ a {
   font-weight: 700;
   letter-spacing: 0.06em;
   font-variant-numeric: tabular-nums;
-}
-
-@media (prefers-color-scheme: dark) {
-  .error {
-    color: #ffd9d2;
-    background: #5a1f17;
-  }
 }
 
 /* Members area: page frame with tabs along the bottom */
@@ -553,7 +574,7 @@ a {
 }
 
 .link.danger {
-  color: #9b2c1f;
+  color: var(--danger);
 }
 
 .event {
@@ -651,12 +672,6 @@ a.button {
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .link.danger {
-    color: #ffb4a8;
-  }
-}
-
 .head-links {
   display: flex;
   align-items: center;
@@ -680,4 +695,172 @@ a.button {
 .app-title h1 {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+/* Light and dark switch */
+.theme-toggle {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.theme-toggle:active {
+  transform: scale(0.96);
+}
+
+/* On pages without the members header, the switch sits in the top corner. */
+.theme-global {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+body:has(.app) .theme-global {
+  display: none;
+}
+
+.side-brand {
+  display: none;
+}
+
+/* Computer screens: the tabs move to a column on the left and the page widens. */
+@media (min-width: 900px) {
+  .app {
+    max-width: 1040px;
+    padding: 0 32px;
+    display: grid;
+    grid-template-columns: 232px minmax(0, 1fr);
+    column-gap: 40px;
+    align-items: start;
+  }
+
+  .app-main {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+    max-width: 680px;
+    padding: 32px 0 56px;
+    gap: 16px;
+  }
+
+  .tabs {
+    grid-column: 1;
+    grid-row: 1;
+    top: 0;
+    bottom: auto;
+    height: 100dvh;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border-top: 0;
+    border-right: 1px solid var(--line);
+    padding: 28px 16px 28px 0;
+  }
+
+  .side-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px 20px;
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.1;
+    text-decoration: none;
+  }
+
+  .tab {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 24px;
+    font-size: 17px;
+  }
+
+  .tab:hover,
+  .tab.on {
+    background: var(--tint);
+  }
+
+  .app-title h1 {
+    font-size: 34px;
+  }
+
+  .chips {
+    margin: 0;
+    padding: 2px 0;
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .button,
+  .chip,
+  .link,
+  .tab,
+  .theme-toggle {
+    transition: background-color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .button:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  /* Welcome page: two columns */
+  .page.welcome {
+    max-width: 1040px;
+    padding: 48px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "brand points"
+      "start points"
+      "install points"
+      "footer footer";
+    column-gap: 72px;
+    row-gap: 28px;
+    align-content: center;
+  }
+
+  .welcome > .brand {
+    grid-area: brand;
+  }
+
+  .welcome > .brand h1 {
+    font-size: 56px;
+  }
+
+  .welcome > .lede,
+  .welcome .lede {
+    font-size: 20px;
+  }
+
+  .welcome > .stack {
+    grid-area: start;
+  }
+
+  .welcome > .points {
+    grid-area: points;
+    align-self: center;
+  }
+
+  .welcome > .install {
+    grid-area: install;
+  }
+
+  .welcome > .footer {
+    grid-area: footer;
+    margin-top: 24px;
+  }
 }
