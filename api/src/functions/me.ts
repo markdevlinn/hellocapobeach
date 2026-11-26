@@ -21,6 +21,7 @@ app.http("me", {
     }
     return json(200, {
       state: member.status,
+      id: member.id,
       name: member.full_name,
       email: member.email,
       isAdmin: member.status === "approved" && member.role === "admin",

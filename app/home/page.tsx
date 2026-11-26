@@ -1,92 +1,135 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { api, ApiError } from "@/lib/api";
-import { signOut } from "@/lib/auth";
-import { useMe } from "@/lib/useMe";
-import { Loading } from "@/components/Brand";
+import { FormEvent, useState } from "react";
+import { api } from "@/lib/api";
+import { CATEGORY_LABEL, timeAgo } from "@/lib/format";
+import { message, useLoad } from "@/lib/useLoad";
+import { AppShell } from "@/components/AppShell";
 
-interface Invite {
-  code: string;
-  used: boolean;
-  usedBy: string | null;
-  active: boolean;
-}
-interface Invites {
-  invitesLeft: number | "unlimited";
-  codes: Invite[];
+interface Post {
+  id: string;
+  category: string;
+  title: string;
+  body: string | null;
+  pinned: boolean;
+  createdAt: string;
+  author: string;
+  street: string;
+  comments: number;
 }
 
-export default function Home() {
-  const { me, waking, error } = useMe(["approved"]);
-  const [invites, setInvites] = useState<Invites | null>(null);
+const FILTERS = [
+  { id: "", label: "All" },
+  { id: "safety", label: "Safety" },
+  { id: "lost_found", label: "Lost and Found" },
+  { id: "recommendations", label: "Recommendations" },
+  { id: "general", label: "General" },
+];
+
+function Feed() {
+  const [filter, setFilter] = useState("");
+  const { data, error, reload } = useLoad<{ posts: Post[] }>(`/api/posts${filter ? `?category=${filter}` : ""}`, true);
+  const [writing, setWriting] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!me) return;
-    api<Invites>("/api/invites")
-      .then(setInvites)
-      .catch(() => setInviteError("We could not load your invite codes."));
-  }, [me]);
-
-  async function createCode() {
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const f = new FormData(form);
     setBusy(true);
-    setInviteError(null);
+    setFormError(null);
     try {
-      setInvites(await api<Invites>("/api/invites", { method: "POST" }));
+      await api("/api/posts", { method: "POST", body: { category: f.get("category"), title: f.get("title"), body: f.get("body") } });
+      form.reset();
+      setWriting(false);
+      await reload();
     } catch (err) {
-      setInviteError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      setFormError(message(err));
     }
     setBusy(false);
   }
 
-  if (error) return <Loading text={error} />;
-  if (!me) return <Loading text={waking ? "Waking things up. This can take up to a minute..." : "One moment..."} />;
-
-  const left = invites?.invitesLeft;
   return (
-    <main className="page">
-      <header className="brand">
-        <h1>Hello, {me.name?.split(" ")[0]}</h1>
-        <p className="lede">You are in. The neighborhood feed, events and marketplace are being built and will appear here.</p>
-      </header>
+    <>
+      <div className="chips" role="group" aria-label="Show">
+        {FILTERS.map((f) => (
+          <button key={f.id} type="button" className={filter === f.id ? "chip on" : "chip"} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>
+            {f.label}
+          </button>
+        ))}
+      </div>
 
-      {me.isAdmin && (
-        <a className="button" href="/admin/">
-          Review requests to join
-        </a>
+      {!writing && (
+        <button type="button" className="button" onClick={() => setWriting(true)}>
+          Write a post
+        </button>
+      )}
+      {writing && (
+        <form className="card form" onSubmit={submit}>
+          <div className="field">
+            <label htmlFor="category">What is it about?</label>
+            <select id="category" name="category" defaultValue="general">
+              <option value="general">General</option>
+              <option value="safety">Safety</option>
+              <option value="lost_found">Lost and Found</option>
+              <option value="recommendations">Recommendations</option>
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="title">Title</label>
+            <input id="title" name="title" type="text" required maxLength={140} />
+          </div>
+          <div className="field">
+            <label htmlFor="body">Details (optional)</label>
+            <textarea id="body" name="body" rows={4} maxLength={5000} />
+          </div>
+          {formError && (
+            <p className="error" role="alert">
+              {formError}
+            </p>
+          )}
+          <div className="row">
+            <button type="submit" className="button grow" disabled={busy}>
+              {busy ? "Posting..." : "Post"}
+            </button>
+            <button type="button" className="button secondary grow" onClick={() => setWriting(false)}>
+              Cancel
+            </button>
+          </div>
+        </form>
       )}
 
-      <section className="card" aria-labelledby="invite-heading">
-        <h2 id="invite-heading">Invite a neighbor</h2>
-        <p className="hint">
-          A code lets a Harbor Estates neighbor skip the wait. Each code works once.
-          {left !== undefined && (left === "unlimited" ? " You can create as many as you need." : ` You have ${left} left.`)}
+      {error && (
+        <p className="error" role="alert">
+          {error}
         </p>
-        {invites && invites.codes.length > 0 && (
-          <ul className="codes">
-            {invites.codes.map((c) => (
-              <li key={c.code}>
-                <span className="code">{c.code}</span>
-                <span className="hint">{c.used ? `Used${c.usedBy ? ` by ${c.usedBy}` : ""}` : c.active ? "Not used yet" : "Switched off"}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {inviteError && (
-          <p className="error" role="alert">
-            {inviteError}
-          </p>
-        )}
-        <button type="button" className="button secondary" onClick={() => void createCode()} disabled={busy || left === 0 || !invites}>
-          {busy ? "Creating..." : left === 0 ? "No codes left" : "Create an invite code"}
-        </button>
-      </section>
+      )}
+      {!data && !error && <p className="hint">Loading posts...</p>}
+      {data?.posts.length === 0 && (
+        <div className="card">
+          <h2>Nothing here yet</h2>
+          <p className="hint">Be the first. Say hello, share a heads-up, or ask for a recommendation.</p>
+        </div>
+      )}
+      {data?.posts.map((p) => (
+        <a key={p.id} className={p.pinned ? "card post pinned" : "card post"} href={`/post/?id=${p.id}`}>
+          <span className="tag">{p.pinned ? "Pinned announcement" : CATEGORY_LABEL[p.category]}</span>
+          <h2>{p.title}</h2>
+          {p.body && <p className="clamp">{p.body}</p>}
+          <span className="hint">
+            {p.author}, {p.street}. {timeAgo(p.createdAt)}. {p.comments === 1 ? "1 comment" : `${p.comments} comments`}
+          </span>
+        </a>
+      ))}
+    </>
+  );
+}
 
-      <button type="button" className="link" onClick={() => void signOut()}>
-        Sign out
-      </button>
-    </main>
+export default function Home() {
+  return (
+    <AppShell tab="home" title="Hello Capo Beach">
+      {() => <Feed />}
+    </AppShell>
   );
 }

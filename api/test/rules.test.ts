@@ -103,3 +103,75 @@ test("sign-up form: the visitor cannot set their own status or role", () => {
   assert.equal(r.ok, true);
   if (r.ok) assert.deepEqual(Object.keys(r.value).sort(), ["fullName", "houseNumber", "inviteCode", "phone", "streetId"]);
 });
+
+// ---------------------------------------------------------------
+// Feed, events, marketplace, profile
+// ---------------------------------------------------------------
+import { canRemove, parseComment, parseEvent, parseListing, parsePost, parseProfile } from "../src/lib/rules";
+
+const A = "11111111-1111-1111-1111-111111111111";
+const B = "22222222-2222-2222-2222-222222222222";
+
+test("posts: need a real category and a title", () => {
+  assert.equal(parsePost({ category: "general", title: "Lost cat on Via Manzana", body: " seen today " }).ok, true);
+  assert.equal(parsePost({ category: "politics", title: "Hello there" }).ok, false);
+  assert.equal(parsePost({ category: "general", title: "x" }).ok, false);
+  const r = parsePost({ category: "safety", title: "Heads up", body: "" });
+  if (r.ok) assert.equal(r.value.body, null);
+});
+
+test("posts: nobody can pin or set the author through the form", () => {
+  const r = parsePost({ category: "general", title: "Hello neighbors", pinned: true, is_pinned: true, authorId: A });
+  assert.equal(r.ok, true);
+  if (r.ok) assert.deepEqual(Object.keys(r.value).sort(), ["body", "category", "title"]);
+});
+
+test("comments: need words, and a reply must point at a real id", () => {
+  assert.equal(parseComment({ body: "  " }).ok, false);
+  assert.equal(parseComment({ body: "Thanks", parentId: "nope" }).ok, false);
+  const r = parseComment({ body: "Thanks", parentId: A });
+  if (r.ok) assert.equal(r.value.parentId, A);
+});
+
+test("events: need a name, a place and a date that has not passed", () => {
+  const now = new Date("2026-11-26T20:00:00Z");
+  assert.equal(parseEvent({ title: "Holiday meet-up", place: "Calle Mayo", startsAt: "2026-12-12T16:00:00-08:00" }, now).ok, true);
+  assert.equal(parseEvent({ title: "Holiday meet-up", place: "Calle Mayo", startsAt: "2026-01-01T16:00:00Z" }, now).ok, false);
+  assert.equal(parseEvent({ title: "Holiday meet-up", place: "Calle Mayo", startsAt: "not a date" }, now).ok, false);
+  assert.equal(parseEvent({ title: "Holiday meet-up", place: "", startsAt: "2026-12-12T16:00:00Z" }, now).ok, false);
+});
+
+test("listings: for sale needs a price, free has none, and a contact is required", () => {
+  const sale = parseListing({ kind: "for_sale", title: "Beach cruiser", price: "$120", contactEmail: "A@B.co" });
+  assert.equal(sale.ok, true);
+  if (sale.ok) {
+    assert.equal(sale.value.priceCents, 12000);
+    assert.equal(sale.value.contactEmail, "a@b.co");
+  }
+  assert.equal(parseListing({ kind: "for_sale", title: "Beach cruiser", contactEmail: "a@b.co" }).ok, false);
+  const free = parseListing({ kind: "free", title: "Patio umbrella", price: 50, contactPhone: "949-555-0100" });
+  if (free.ok) assert.equal(free.value.priceCents, null);
+  assert.equal(parseListing({ kind: "free", title: "Patio umbrella" }).ok, false);
+  assert.equal(parseListing({ kind: "auction", title: "Patio umbrella", contactEmail: "a@b.co" }).ok, false);
+});
+
+test("profile: everything stays private unless it is switched on with a real true", () => {
+  const r = parseProfile({ phone: "949-555-0100", showPhone: "yes", showEmail: 1, showHouseNumber: "true", inDirectory: null });
+  assert.equal(r.ok, true);
+  if (r.ok) assert.deepEqual(r.value, { phone: "949-555-0100", showPhone: false, showEmail: false, showHouseNumber: false, inDirectory: false });
+});
+
+test("profile: a phone number cannot be shown if there is none", () => {
+  const r = parseProfile({ phone: "", showPhone: true, inDirectory: true });
+  if (r.ok) {
+    assert.equal(r.value.showPhone, false);
+    assert.equal(r.value.inDirectory, true);
+  }
+});
+
+test("removing: your own things, or anything if you are an admin", () => {
+  assert.equal(canRemove({ id: A, status: "approved", role: "resident" }, A), true);
+  assert.equal(canRemove({ id: A, status: "approved", role: "resident" }, B), false);
+  assert.equal(canRemove({ id: A, status: "approved", role: "admin" }, B), true);
+  assert.equal(canRemove({ id: A, status: "removed", role: "admin" }, B), false);
+});

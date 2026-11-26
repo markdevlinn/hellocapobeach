@@ -55,7 +55,7 @@ export default function Admin() {
           <p className="lede">This page is for the neighbors who run Hello Capo Beach.</p>
         </header>
         <a className="button" href="/home/">
-          Back to home
+          Back to my profile
         </a>
       </main>
     );
@@ -64,8 +64,8 @@ export default function Admin() {
   return (
     <main className="page">
       <header className="brand">
-        <a className="back" href="/home/">
-          Back to home
+        <a className="back" href="/profile/">
+          Back to my profile
         </a>
         <h1>Requests to join</h1>
         <p className="lede">Only admins see this page.</p>

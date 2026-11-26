@@ -6,6 +6,7 @@ import { api, ApiError, SignInNeeded } from "./api";
 
 export interface Me {
   state: "none" | "pending" | "approved" | "declined" | "removed";
+  id?: string;
   name?: string;
   email?: string | null;
   isAdmin?: boolean;

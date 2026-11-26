@@ -112,6 +112,9 @@ export interface Tokens {
 
 /** Returns fresh tokens, or null when the person has to sign in again. Never hangs. */
 export async function getTokens(): Promise<Tokens | null> {
+  // Local screenshots only. This is switched on at build time by a developer and is
+  // never set in the deployed build. The API rejects these placeholder tokens.
+  if (process.env.NEXT_PUBLIC_PREVIEW_AUTH === "1") return { accessToken: "preview", idToken: "preview" };
   try {
     const pca = await getApp();
     const account = await currentAccount();

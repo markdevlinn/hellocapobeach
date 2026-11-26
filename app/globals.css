@@ -361,3 +361,298 @@ a {
     background: #5a1f17;
   }
 }
+
+/* Members area: page frame with tabs along the bottom */
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  padding: 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.app-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-title h1 {
+  font-size: 28px;
+}
+
+.me-link {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: var(--tint);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tabs {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+}
+
+.tab {
+  flex: 1;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tab.on {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 -20px;
+  padding: 2px 20px;
+  scrollbar-width: none;
+}
+
+.chip {
+  flex: none;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 22px;
+  border: 1.5px solid var(--field-line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chip.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+}
+
+.field textarea {
+  width: 100%;
+  border: 1.5px solid var(--field-line);
+  border-radius: var(--radius-field);
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  resize: vertical;
+}
+
+.card.form {
+  gap: 16px;
+}
+
+.card.post {
+  color: inherit;
+  text-decoration: none;
+  gap: 6px;
+}
+
+.card.pinned {
+  background: var(--sun);
+  color: var(--sun-ink);
+}
+
+.card.pinned .hint,
+.card.pinned .tag {
+  color: var(--sun-ink);
+}
+
+.tag {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.prose {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.section {
+  font-size: 18px;
+  margin-top: 6px;
+}
+
+.comment {
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.comment.reply {
+  margin-left: 28px;
+}
+
+.byline {
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.byline strong {
+  color: var(--ink);
+}
+
+.actions {
+  align-items: center;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.actions:empty {
+  display: none;
+}
+
+.link.danger {
+  color: #9b2c1f;
+}
+
+.event {
+  flex-direction: row;
+  gap: 14px;
+}
+
+.datebox {
+  flex: none;
+  width: 64px;
+  height: 72px;
+  border-radius: var(--radius-field);
+  background: var(--tint);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.datebox span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.datebox strong {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.listing {
+  gap: 6px;
+}
+
+.listing.sold h2 {
+  color: var(--muted);
+}
+
+.price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  background: var(--sun);
+  color: var(--sun-ink);
+  font-size: 15px;
+}
+
+.person {
+  flex-direction: row;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.avatar {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: var(--tint);
+  color: var(--primary);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.switches {
+  border: 0;
+  margin: 0;
+  gap: 2px;
+}
+
+.switches legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.saved {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+a.button {
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .link.danger {
+    color: #ffb4a8;
+  }
+}
