@@ -1,31 +1,17 @@
+import { Mark } from "@/components/Brand";
+import { StartButton } from "@/components/StartButton";
+
 // Public welcome page. Anyone can see this, so it holds no neighbor data.
 export default function WelcomePage() {
   return (
     <main className="page">
       <header className="brand">
-        <svg aria-hidden="true" width="56" height="56" viewBox="0 0 48 48" fill="none">
-          <circle cx="24" cy="20" r="11" fill="var(--sun)" />
-          <path
-            d="M4 34c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4"
-            stroke="var(--primary)"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-          <path
-            d="M4 43c5 0 5-4 10-4s5 4 10 4 5-4 10-4 5 4 10 4"
-            stroke="var(--primary)"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-        </svg>
+        <Mark />
         <h1>Hello Capo Beach</h1>
         <p className="lede">For Harbor Estates neighbors.</p>
       </header>
 
-      <div className="notice" role="status">
-        <strong>Sign-up opens soon</strong>
-        <span>Harbor Estates residents will be able to ask to join here. Have an invite code from a neighbor? Bring it along.</span>
-      </div>
+      <StartButton />
 
       <ul className="points">
         <li>

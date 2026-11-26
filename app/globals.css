@@ -195,3 +195,169 @@ a {
 .button:active {
   transform: scale(0.98);
 }
+
+/* Shared pieces for the signed-in pages */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.error {
+  color: #9b2c1f;
+  background: #fde8e4;
+  border-radius: var(--radius-field);
+  padding: 12px 14px;
+  font-weight: 600;
+}
+
+.button {
+  width: 100%;
+  cursor: pointer;
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.button.secondary {
+  background: var(--surface);
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+
+.link,
+.back {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  height: 52px;
+  width: 100%;
+  border: 1.5px solid var(--field-line);
+  border-radius: var(--radius-field);
+  padding: 0 14px;
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.house {
+  width: 110px;
+}
+
+.card,
+.rules {
+  background: var(--surface);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card h2,
+.rules h2 {
+  font-size: 20px;
+}
+
+.rules ul {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 16px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  font-weight: 600;
+}
+
+.check input {
+  width: 26px;
+  height: 26px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--primary);
+}
+
+.codes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.codes li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  border-top: 1px solid var(--line);
+}
+
+.code {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error {
+    color: #ffd9d2;
+    background: #5a1f17;
+  }
+}
