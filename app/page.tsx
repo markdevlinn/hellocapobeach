@@ -23,8 +23,8 @@ export default function WelcomePage() {
       </header>
 
       <div className="notice" role="status">
-        <strong>Sign-up opens soon</strong>
-        <span>Watch for a flyer on your door with your invite code.</span>
+        <strong>Sign-up is by invite</strong>
+        <span>Opening soon. You will need an invite code from a neighbor who is already a member.</span>
       </div>
 
       <ul className="points">
