@@ -76,3 +76,7 @@ begin
   commit transaction;
 end
 ');
+
+-- Open sign-up: a neighbor can ask to join without an invite code.
+-- No code means they wait in the holding area for admin approval.
+alter table dbo.members alter column invite_code nvarchar(40) null;
