@@ -253,3 +253,32 @@ export function parseMemberEdit(body: unknown): Parsed<{ fullName: string; stree
   if (!/^[0-9]{1,6}[A-Za-z]?$/.test(houseNumber)) return { ok: false, message: "Please enter the house number." };
   return { ok: true, value: { fullName, streetId, houseNumber } };
 }
+
+// ---------------------------------------------------------------
+// Staying signed in
+// ---------------------------------------------------------------
+
+export const SESSION_COOKIE = "__Host-hcb_session";
+export const SESSION_DAYS = 90;
+/** When fewer than this many days remain, the 90 days start over. */
+export const SESSION_RENEW_BELOW_DAYS = 60;
+
+/** Reads one cookie out of a Cookie header. Returns null if it is missing or malformed. */
+export function readCookie(header: string | null | undefined, name: string): string | null {
+  if (!header) return null;
+  for (const part of header.split(";")) {
+    const eq = part.indexOf("=");
+    if (eq < 0) continue;
+    if (part.slice(0, eq).trim() === name) {
+      const value = part.slice(eq + 1).trim();
+      // Our tokens are 43 url-safe characters. Anything else is not ours.
+      return /^[A-Za-z0-9_-]{43}$/.test(value) ? value : null;
+    }
+  }
+  return null;
+}
+
+export function sessionNeedsRenewal(expiresAt: Date, now: Date): boolean {
+  const daysLeft = (expiresAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000);
+  return daysLeft < SESSION_RENEW_BELOW_DAYS;
+}

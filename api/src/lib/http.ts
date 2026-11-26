@@ -1,7 +1,8 @@
 import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { identify, Identity } from "./auth";
 import { getPool, isWakingUp, resetPool, sql } from "./db";
-import { Access, allowed, MemberRole, MemberStatus } from "./rules";
+import { Access, allowed, MemberRole, MemberStatus, readCookie, SESSION_COOKIE } from "./rules";
+import { findSession, Session } from "./session";
 
 export interface Member {
   id: string;
@@ -18,6 +19,11 @@ export interface Ctx {
   identity: Identity | null;
   member: Member | null;
   pool: sql.ConnectionPool;
+  /** How this request proved who it is: the stay-signed-in cookie, or a fresh sign-in token. */
+  via: "session" | "token" | "none";
+  /** The stay-signed-in token and its details, when the request used one. */
+  sessionToken: string | null;
+  session: Session | null;
 }
 
 export function json(status: number, body: unknown): HttpResponseInit {
@@ -44,16 +50,34 @@ export function endpoint(need: Access, handler: (ctx: Ctx) => Promise<HttpRespon
   return async (req: HttpRequest, log: InvocationContext): Promise<HttpResponseInit> => {
     try {
       let identity: Identity | null = null;
-      if (need !== "public") {
-        identity = await identify(req.headers.get("x-hcb-token"), req.headers.get("x-hcb-idtoken"));
-        if (!identity) return fail(401, "Please sign in.");
-      }
+      let via: Ctx["via"] = "none";
+      let sessionToken: string | null = null;
+      let session: Session | null = null;
       const pool = await getPool();
+
+      // 1. The stay-signed-in cookie. It only counts when the request also carries
+      //    our own header, which another website cannot add on a visitor's behalf.
+      const cookieToken = readCookie(req.headers.get("cookie"), SESSION_COOKIE);
+      if (cookieToken && req.headers.get("x-hcb") === "1") {
+        session = await findSession(pool, cookieToken);
+        if (session) {
+          identity = { subject: session.subject, email: session.email };
+          via = "session";
+          sessionToken = cookieToken;
+        }
+      }
+      // 2. Otherwise, a fresh sign-in token from Microsoft.
+      if (!identity) {
+        identity = await identify(req.headers.get("x-hcb-token"), req.headers.get("x-hcb-idtoken"));
+        if (identity) via = "token";
+      }
+      if (need !== "public" && !identity) return fail(401, "Please sign in.");
+
       const member = identity ? await findMember(pool, identity.subject) : null;
       if (!allowed(need, identity !== null, member)) {
         return fail(403, "You do not have access to this yet.");
       }
-      return await handler({ req, log, identity, member, pool });
+      return await handler({ req, log, identity, member, pool, via, sessionToken, session });
     } catch (err) {
       if (isWakingUp(err)) {
         resetPool();

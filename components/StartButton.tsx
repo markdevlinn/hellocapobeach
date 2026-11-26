@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getTokens, signIn } from "@/lib/auth";
+import { isRemembered } from "@/lib/api";
 
 // The one action on the welcome page. Signing in and asking to join start the
 // same way: type your email, get a code.
@@ -14,6 +15,12 @@ export function StartButton() {
   useEffect(() => {
     // Only skip ahead when this device holds a sign-in that still works.
     // If it does not, stay here and show the button.
+    // A remembered device goes straight in. If that turns out to have expired,
+    // the next page clears it and sends the person back here.
+    if (isRemembered()) {
+      router.replace("/start/");
+      return;
+    }
     getTokens()
       .then((tokens) => {
         if (tokens) router.replace("/start/");

@@ -207,3 +207,29 @@ test("admin edit of a member: name, street and house number only", () => {
   assert.equal(parseMemberEdit({ fullName: "W", streetId: 6, houseNumber: "1" }).ok, false);
   assert.equal(parseMemberEdit({ fullName: "Will Wright", streetId: "x", houseNumber: "1" }).ok, false);
 });
+
+// ---------------------------------------------------------------
+// Staying signed in
+// ---------------------------------------------------------------
+import { readCookie, SESSION_COOKIE, sessionNeedsRenewal } from "../src/lib/rules";
+
+const TOKEN = "A".repeat(43);
+
+test("session cookie: found among other cookies, and only in our exact format", () => {
+  assert.equal(readCookie(`a=1; ${SESSION_COOKIE}=${TOKEN}; b=2`, SESSION_COOKIE), TOKEN);
+  assert.equal(readCookie(`${SESSION_COOKIE}=${TOKEN}`, SESSION_COOKIE), TOKEN);
+  assert.equal(readCookie(null, SESSION_COOKIE), null);
+  assert.equal(readCookie("a=1; b=2", SESSION_COOKIE), null);
+  assert.equal(readCookie(`${SESSION_COOKIE}=short`, SESSION_COOKIE), null);
+  assert.equal(readCookie(`${SESSION_COOKIE}=${"A".repeat(42)}'`, SESSION_COOKIE), null);
+  assert.equal(readCookie(`x${SESSION_COOKIE}=${TOKEN}`, SESSION_COOKIE), null);
+});
+
+test("session: the 90 days start over only once it has run down below 60", () => {
+  const now = new Date("2026-11-26T00:00:00Z");
+  const inDays = (d: number) => new Date(now.getTime() + d * 86400000);
+  assert.equal(sessionNeedsRenewal(inDays(89), now), false);
+  assert.equal(sessionNeedsRenewal(inDays(61), now), false);
+  assert.equal(sessionNeedsRenewal(inDays(59), now), true);
+  assert.equal(sessionNeedsRenewal(inDays(1), now), true);
+});

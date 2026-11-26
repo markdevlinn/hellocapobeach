@@ -84,6 +84,8 @@ export async function signInFresh(): Promise<void> {
     // storage can be unavailable in private windows; carry on
   }
   appPromise = null;
+  const { forgetDevice } = await import("./api");
+  await forgetDevice();
   await signIn();
 }
 
@@ -130,7 +132,18 @@ export async function getTokens(): Promise<Tokens | null> {
 }
 
 export async function signOut(): Promise<void> {
-  const pca = await getApp();
-  const account = await currentAccount();
-  await pca.logoutRedirect({ account: account ?? undefined });
+  // End the remembered sign-in first, so this device really is signed out.
+  const { forgetDevice } = await import("./api");
+  await forgetDevice();
+  try {
+    const pca = await getApp();
+    const account = await currentAccount();
+    if (account) {
+      await pca.logoutRedirect({ account });
+      return;
+    }
+  } catch (err) {
+    note("signing out", err);
+  }
+  window.location.assign("/");
 }
