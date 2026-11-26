@@ -37,12 +37,19 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     let res: Response;
     try {
-      res = await fetch(path, {
-        method: opts.method ?? "GET",
-        headers,
-        body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
-        cache: "no-store",
-      });
+      const stop = new AbortController();
+      const timer = setTimeout(() => stop.abort(), 45000);
+      try {
+        res = await fetch(path, {
+          method: opts.method ?? "GET",
+          headers,
+          body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+          cache: "no-store",
+          signal: stop.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
     } catch {
       throw new ApiError(0, "We could not reach Hello Capo Beach. Check your connection and try again.");
     }

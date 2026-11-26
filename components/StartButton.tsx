@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { isSignedIn, signIn } from "@/lib/auth";
+import { getTokens, signIn } from "@/lib/auth";
 
 // The one action on the welcome page. Signing in and asking to join start the
 // same way: type your email, get a code.
@@ -12,9 +12,11 @@ export function StartButton() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    isSignedIn()
-      .then((yes) => {
-        if (yes) router.replace("/start/");
+    // Only skip ahead when this device holds a sign-in that still works.
+    // If it does not, stay here and show the button.
+    getTokens()
+      .then((tokens) => {
+        if (tokens) router.replace("/start/");
       })
       .catch(() => undefined);
   }, [router]);
