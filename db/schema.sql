@@ -298,8 +298,9 @@ where not exists (select 1 from dbo.landmarks l where l.name = v.name);
 -- ---------------------------------------------------------------
 -- 7. After running this file
 -- ---------------------------------------------------------------
--- a) Create the flyer invite code (pick your own word):
---      insert into dbo.invite_codes (code, note) values (N'YOURCODE', N'Launch flyer');
--- b) Sign up through the app once, then make yourself the first admin:
+-- a) Run db/migrations/002_member_invites.sql (member invites, 5 per member).
+-- b) Create your own first invite code so you can sign up (pick your own word):
+--      insert into dbo.invite_codes (code, note) values (N'YOURCODE', N'First admin');
+-- c) Sign up through the app once, then make yourself the first admin:
 --      update dbo.members set status = 'approved', role = 'admin', approved_at = sysutcdatetime()
 --      where email = N'you@example.com';
